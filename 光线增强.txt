@@ -1,0 +1,53 @@
+import cv2
+from PIL import ImageEnhance, Image
+import numpy as np
+
+
+
+def img_enhance(image):
+    # 亮度增强
+    enh_bri = ImageEnhance.Brightness(image)
+    brightness = 1.5
+    image_brightened = enh_bri.enhance(brightness)
+    # image_brightened.show()
+
+    # 色度增强
+    enh_col = ImageEnhance.Color(image_brightened)
+    color = 1.5
+    image_colored = enh_col.enhance(color)
+    # image_colored.show()
+
+    # 对比度增强
+    enh_con = ImageEnhance.Contrast(image_colored)
+    contrast = 1.5
+    image_contrasted = enh_con.enhance(contrast)
+    # image_contrasted.show()
+
+    # 锐度增强
+    enh_sha = ImageEnhance.Sharpness(image_contrasted)
+    sharpness = 3.0
+    image_sharped = enh_sha.enhance(sharpness)
+    # image_sharped.show()
+
+    return image_sharped
+
+if __name__ == '__main__':
+    cap = cv2.VideoCapture('traffic1.mp4')
+    images = []
+    while (cap.isOpened()):
+        ret, frame = cap.read()  # 读出来的frame是ndarray类型
+        image = Image.fromarray(np.uint8(frame))  # 转换成PIL可以处理的格式
+
+        images.append(image)
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+
+        # 同步进行增强画质处理，并显示
+        image_enhanced = img_enhance(image)  # 调用编写的画质增强函数
+        cv2.imshow('frame_enhanced', np.asarray(image_enhanced))  # 显示的时候要把格式转换回来
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
